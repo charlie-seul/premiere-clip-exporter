@@ -53,3 +53,17 @@ Pour chaque média, vérifier nombre d’images et durée dans un outil de contr
 - Fidélité des effets : **Invert de clip confirmé ; autres effets non validés**
 - Respect des bornes et durée : **confirmé sur ces deux plages à 25 i/s**
 - Conclusion hôte : **export de plans simples fonctionnel ; recette complexe en attente**
+
+## Nettoyage automatique — recette complémentaire 0.3.0
+
+Test réel exécuté le 21 novembre 2026, sur un projet synthétique séparé dans Premiere Pro 27.0.0 :
+
+- 2 segments H.264 exportés puis contrôlés (conteneurs finalisés et taille stable).
+- 2 copies identifiées par GUID et nom supprimées avec `Project.deleteSequence()`.
+- Liste finale des séquences : uniquement `PCE_fixture`, la séquence d’origine.
+- Points In/Out de la source toujours non définis (valeur sentinelle Adobe).
+- L’événement EXPORT_MEDIA_COMPLETE n’a pas été reçu sur cette voie d’export, même avec écoute globale. Il n’est donc pas utilisé pour autoriser la suppression.
+- `require('fs').lstat()` a levé « Unimplemented method » dans l’hôte : utilisation des File/Folder UXP autorisés, avec seuil de 256 Mo pour limiter la lecture en mémoire.
+- Les cas échec, annulation, copie renommée, mauvais GUID, fichier incomplet et taille instable sont couverts par tests Node.
+
+Limites : nettoyage testé réellement en H.264 uniquement. Pas de validation de nettoyage sur long lot, fichiers >256 Mo, autres cadences ou formats autres que MP4/MOV. Les fichiers >256 Mo sont volontairement conservés.

@@ -11,7 +11,8 @@ body{background:#242424;color:#eee;font:13px system-ui;padding:16px}h1{font-size
 <button id="preset">Choisir le format : preset Adobe .epr</button><p id="presetName">Aucun preset — H.264 ou ProRes via un preset exporté depuis Premiere.</p>
 <button id="folder">Choisir le dossier de destination</button><p id="folderName">Aucun dossier</p>
 <pre id="preview">Analyse requise.</pre>
-<p>Chaque export crée une copie complète dans le projet. Garder ces copies et le panneau ouverts jusqu’à la fin des rendus. Ne pas modifier le montage pendant le lot.</p>
+<p>Chaque export crée une copie dans le projet. Le nettoyage automatique ne la supprime que si le fichier MP4/MOV est finalisé et stable. Sinon elle reste disponible. Garder le panneau ouvert pendant le lot. Nettoyage limité aux MP4/MOV de 256 Mo maximum ; les autres copies restent dans le projet.</p>
+<label><input id="cleanup" type="checkbox" checked> Supprimer automatiquement les copies après finalisation du fichier</label>
 <button id="export" disabled>Export All Clips</button>
 <button id="stop" disabled>Arrêter après la demande en cours</button>
 <pre id="status" role="status">Prêt. Tester d’abord sur une copie du projet.</pre>

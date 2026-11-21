@@ -39,3 +39,7 @@ Le clonage ne documente pas une garantie exhaustive de copie des effets couleur 
 - [TickTime](https://developer.adobe.com/premiere-pro/uxp/ppro-reference/classes/ticktime)
 - [EncoderManager](https://developer.adobe.com/premiere-pro/uxp/ppro-reference/classes/encodermanager)
 - [Exemple Adobe d’export](https://github.com/AdobeDocs/uxp-premiere-pro-samples/blob/a6172f151f84b54e1dcd4facef7f85ab5d50d490/sample-panels/premiere-api/src/export.ts)
+
+## Ajout 0.3.0
+
+`Project.deleteSequence(sequence)` est appelé seulement sur la copie du lot après contrôle du fichier finalisé. GUID et nom doivent correspondre et le GUID source est explicitement interdit. Les événements de fin n’étant pas reçus pour les exports directs lors du test réel, leur présence n’est pas supposée. L’API `File.getMetadata()` / `File.read({format: storage.formats.binary})` remplace `fs.lstat`, indisponible dans Premiere 27.0.0 malgré sa présence documentaire. Les conteneurs ISO BMFF sont contrôlés avant suppression, sous une limite de lecture de 256 Mo.

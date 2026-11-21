@@ -103,3 +103,34 @@ test('invalid preset extension and empty batches fail before cloning',async()=>{
   await assert.rejects(()=>run(h),/Extension/);assert.equal(h.clones.length,0);
   await assert.rejects(()=>run(host(),{segments:[]}),/Aucun plan/);
 });
+
+function cleanupHost() {
+  const h=host(),removed=[];
+  h.project.deleteSequence=async clone=>{removed.push(clone.guid.toString());h.clones.splice(h.clones.indexOf(clone),1);return true;};
+  return {...h,removed};
+}
+test('automatic cleanup waits for output verification then deletes only generated copies',async()=>{
+  const h=cleanupHost();let verified=0;
+  const r=await run(h,{autoCleanup:true,verifyOutput:async()=>{assert.equal(h.removed.length,verified);verified++;return true;}});
+  assert.equal(verified,2);assert.equal(h.removed.length,2);assert.equal(h.source.in,'20');
+  assert.ok(r.jobs.every(j=>j.cleanup==='removed'));
+});
+test('missing verifier, incomplete file, or export rejection never deletes copies',async()=>{
+  for(const verifyOutput of [undefined,async()=>false,async()=>{throw Error('unreadable');}]) {
+    const h=cleanupHost();await run(h,{autoCleanup:true,verifyOutput});assert.equal(h.removed.length,0);
+  }
+  const h=cleanupHost();h.ppro.EncoderManager.getManager=()=>({exportSequence:async()=>false});
+  await assert.rejects(()=>run(h,{autoCleanup:true,verifyOutput:async()=>true}));assert.equal(h.removed.length,0);
+});
+test('cleanup refuses original GUID and renamed copies',async()=>{
+  const {removeCompletedCopy,cloneSequence}=require('../src/core');const h=cleanupHost();
+  assert.equal(await removeCompletedCopy(h.project,h.source,{completion:'file-finalized',cloneGuid:'source'}),'kept');
+  const c=await cloneSequence(h.project,h.source);
+  assert.equal(await removeCompletedCopy(h.project,h.source,{completion:'file-finalized',cloneGuid:c.guid.toString(),cloneName:'renamed'}),'kept-modified');
+  assert.equal(h.removed.length,0);
+});
+test('cancellation after verification preserves the copy',async()=>{
+  const h=cleanupHost();let stop=false;
+  await run(h,{autoCleanup:true,cancelled:()=>stop,verifyOutput:async()=>{stop=true;return true;}});
+  assert.equal(h.removed.length,0);assert.equal(h.calls.length,1);
+});

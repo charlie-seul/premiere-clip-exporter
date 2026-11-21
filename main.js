@@ -2,10 +2,11 @@
 const ppro = require('premierepro');
 const {storage} = require('uxp');
 const core = require('./src/core.js');
+const {verifyFinalizedEntry} = require('./src/finalized-media.js');
 const $ = id => document.getElementById(id);
 let preset, destination, busy = false, stop = false, inspected = false;
 const say = message => { $('status').textContent = message; };
-const controls = ['inspect', 'preset', 'folder', 'mode', 'track'];
+const controls = ['inspect', 'preset', 'folder', 'mode', 'track', 'cleanup'];
 function refresh() {
   for (const id of controls) $(id).disabled = busy;
   $('export').disabled = busy || !preset || !destination || !inspected;
@@ -64,17 +65,19 @@ action('export', async () => {
     const runName = 'ClipExports-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     const folder = await destination.createFolder(runName);
     journal = await folder.createFile('export-report.json', {overwrite: false});
-    report = {version: '0.2.1', createdAt: new Date().toISOString(),
+    report = {version: '0.3.0', createdAt: new Date().toISOString(),
       sourceName: source.name, sourceGuid: source.guid.toString(), preset: preset.nativePath,
       validation: 'Host exports NOT independently verified', jobs: []};
     await core.exportBatch({ppro, project, source, segments, presetPath: preset.nativePath, folder,
-      cancelled: () => stop, report, onUpdate: async data => {
+      cancelled: () => stop, report, autoCleanup: $('cleanup').checked, verifyOutput: (path, seconds, cancelled) => verifyFinalizedEntry(folder, path.slice(path.lastIndexOf('/')+1), seconds, cancelled, storage.formats.binary), onUpdate: async data => {
         await journal.write(JSON.stringify(data, null, 2));
         say(data.jobs.length + '/' + segments.length + ' demande(s)\n' +
           data.jobs.map(j => j.filename + ' : ' + j.state).join('\n'));
       }});
     say((stop ? 'Lot interrompu.' : 'Demandes transmises à Premiere.') +
-      '\nVérifier la fin des rendus, leur durée et leurs effets.\nDossier : ' + folder.nativePath);
+      '\n' + report.jobs.filter(j => j.cleanup === 'removed').length + ' copie(s) supprimée(s). ' +
+      report.jobs.filter(j => j.cleanup && j.cleanup !== 'removed' && j.cleanup !== 'already-absent').length + ' copie(s) conservée(s).'+
+      '\nSi le fichier finalisé ne peut pas être confirmé, sa copie reste dans le projet. Vérifier les rendus.\nDossier : ' + folder.nativePath);
   } catch (e) {
     if (journal && report) {
       report.error = String(e.message || e);

@@ -1,11 +1,11 @@
 {
   "name": "premiere-clip-exporter",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "description": "Experimental Premiere Pro 27 UXP segment exporter",
   "scripts": {
     "test": "node --test",
-    "check": "node --check main.js && node --check src/core.js"
+    "check": "node --check main.js && node --check src/core.js && node --check src/finalized-media.js"
   },
   "engines": {
     "node": ">=20"

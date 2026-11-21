@@ -58,7 +58,15 @@ async function cloneSequence(project, source) {
   if (added.length !== 1) throw new Error('Impossible d’identifier une copie unique. Lot arrêté ; inspecter les séquences du projet.');
   return added[0];
 }
-async function exportBatch({ppro, project, source, segments, presetPath, folder, cancelled, onUpdate, report}) {
+async function removeCompletedCopy(project, source, job) {
+  if (job.completion !== 'file-finalized' || !job.cloneGuid ||
+      job.cloneGuid === source.guid.toString()) return 'kept';
+  const matches = (await project.getSequences()).filter(s => s.guid.toString() === job.cloneGuid);
+  if (!matches.length) return 'already-absent';
+  if (matches.length !== 1 || matches[0].name !== job.cloneName) return 'kept-modified';
+  return await project.deleteSequence(matches[0]) === true ? 'removed' : 'kept-delete-refused';
+}
+async function exportBatch({ppro, project, source, segments, presetPath, folder, cancelled, onUpdate, report, autoCleanup = false, verifyOutput}) {
   if (!segments.length) throw new Error('Aucun plan à exporter.');
   const extension = String(await ppro.EncoderManager.getExportFileExtension(source, presetPath)).replace(/^\./, '');
   if (!/^[a-z0-9]{1,10}$/i.test(extension)) throw new Error('Extension du preset invalide.');
@@ -88,8 +96,22 @@ async function exportBatch({ppro, project, source, segments, presetPath, folder,
       const accepted = await encoder.exportSequence(clone, ppro.Constants.ExportType.IMMEDIATELY,
         job.output, presetPath, false);
       if (accepted !== true) throw new Error('Premiere a refusé ou annulé l’export.');
-      // A host boolean is not independent proof of a completed/valid media file.
       job.state = 'api-accepted-unverified';
+      if (autoCleanup) {
+        job.cleanup = 'kept';
+        job.state = 'checking-output';
+        await onUpdate(report);
+        const expectedSeconds = (Number(segment.end)-Number(segment.start))/254016000000;
+        let finalized=false;
+        try { finalized = verifyOutput ? await verifyOutput(job.output, expectedSeconds, cancelled) : false; }
+        catch(e) { job.cleanupError=String(e.message || e); }
+        job.completion=finalized ? 'file-finalized' : 'unconfirmed';
+        job.state=finalized ? 'file-finalized-unverified-content' : 'api-accepted-unverified';
+        if (finalized && !cancelled()) {
+          try { job.cleanup = await removeCompletedCopy(project, source, job); }
+          catch(e) { job.cleanup = 'kept-delete-error'; job.cleanupError = String(e.message || e); }
+        }
+      }
       await onUpdate(report);
     } catch (error) {
       job.state = 'failed'; job.error = String(error.message || error);
@@ -98,4 +120,4 @@ async function exportBatch({ppro, project, source, segments, presetPath, folder,
   }
   return report;
 }
-module.exports = {ticks, compare, safeName, planSegments, scan, transaction, cloneSequence, exportBatch};
+module.exports = {ticks, compare, safeName, planSegments, scan, transaction, cloneSequence, exportBatch, removeCompletedCopy};

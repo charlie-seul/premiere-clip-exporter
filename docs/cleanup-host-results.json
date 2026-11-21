@@ -1,0 +1,23 @@
+{
+  "premiere": "27.0.0",
+  "date": "2026-11-21",
+  "jobs": [
+    {
+      "filename": "0001_01-red.mov.mp4",
+      "state": "file-finalized-unverified-content",
+      "cleanup": "removed",
+      "completion": "file-finalized"
+    },
+    {
+      "filename": "0002_02-blue.mov.mp4",
+      "state": "file-finalized-unverified-content",
+      "cleanup": "removed",
+      "completion": "file-finalized"
+    }
+  ],
+  "remainingSequenceNames": [
+    "PCE_fixture"
+  ],
+  "sourceIn": "-101606400000000000",
+  "sourceOut": "-101606400000000000"
+}
