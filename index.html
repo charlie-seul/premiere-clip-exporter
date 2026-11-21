@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+body{background:#242424;color:#eee;font:13px system-ui;padding:16px}h1{font-size:21px}p{line-height:1.5;color:#ccc}button,select{margin:5px 0;padding:9px;width:100%}label{display:block;margin-top:10px}pre{white-space:pre-wrap;font-size:12px;background:#191919;padding:10px;max-height:200px;overflow:auto}.note{color:#f4cf87}#stop{background:#583636}button:disabled{opacity:.45}
+</style></head><body>
+<h1>Premiere Clip Exporter</h1>
+<p class="note">Version de développement · rendus non validés dans Premiere.</p>
+<p>Un fichier par plage de clip, avec toutes les pistes visibles et le mixage audio de la séquence. Les calques d’effets ne définissent pas de plans.</p>
+<label>Plans à exporter<select id="mode"><option value="track">Tous les plans d’une piste</option><option value="selected">Clips vidéo sélectionnés (toutes pistes)</option></select></label>
+<label>Piste de découpage<select id="track"><option value="0">V1</option></select></label>
+<button id="inspect">Analyser la séquence active</button>
+<button id="preset">Choisir le format : preset Adobe .epr</button><p id="presetName">Aucun preset — H.264 ou ProRes via un preset exporté depuis Premiere.</p>
+<button id="folder">Choisir le dossier de destination</button><p id="folderName">Aucun dossier</p>
+<pre id="preview">Analyse requise.</pre>
+<p>Chaque export crée une copie complète dans le projet. Garder ces copies et le panneau ouverts jusqu’à la fin des rendus. Ne pas modifier le montage pendant le lot.</p>
+<button id="export" disabled>Export All Clips</button>
+<button id="stop" disabled>Arrêter après la demande en cours</button>
+<pre id="status" role="status">Prêt. Tester d’abord sur une copie du projet.</pre>
+<script src="main.js"></script>
+</body></html>

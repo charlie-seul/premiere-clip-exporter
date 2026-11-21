@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+*.ccx
+*.prproj
+*.mov
+*.mp4
