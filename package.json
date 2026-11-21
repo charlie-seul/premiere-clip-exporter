@@ -1,1 +1,14 @@
-{"name":"premiere-clip-exporter","version":"0.2.0","private":true,"description":"Experimental Premiere Pro 27 UXP segment exporter","scripts":{"test":"node --test","check":"node --check main.js && node --check src/core.js"},"engines":{"node":">=20"},"license":"MIT"}
+{
+  "name": "premiere-clip-exporter",
+  "version": "0.2.1",
+  "private": true,
+  "description": "Experimental Premiere Pro 27 UXP segment exporter",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check main.js && node --check src/core.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

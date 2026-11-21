@@ -4,12 +4,19 @@
 
 - Prototype téléchargé inspecté : interface d’inspection uniquement, aucune détection ni fonction d’export.
 - API recoupées avec les références et exemples officiels Adobe, voir API-AUDIT.md.
-- Premiere Pro **27.0.0** installé sur le Mac et application ouverte, constaté sans modifier le montage.
-- UXP Developer Tool non trouvé dans Applications/Utilitaires ; commande `uxp` absente.
-- 14 tests Node réussis ; contrôle syntaxique de main.js et src/core.js réussi.
-- **Panneau non chargé dans Premiere ; aucun fichier vidéo réellement exporté avec ce plugin.**
+- Premiere Pro **27.0.0** : mode développeur activé avec accord de l’utilisateur, application redémarrée après sauvegarde du projet ouvert.
+- UXP Developer Tools : manifeste principal chargé avec succès ; analyse via le panneau de deux clips vidéo réussie.
+- Projet de test indépendant : deux médias synthétiques ProRes 320 × 180, 25 i/s, son sinusoïdal 440 Hz puis 880 Hz ; durées 2 s et 3 s.
+- Effet `AE.ADBE Invert` ajouté au premier clip. Export de référence de la séquence complète puis exports par plages avec la même fonction `exportBatch` que le panneau.
+- **H.264 : 50 et 75 images, 2.000 et 3.000 secondes**, audio AAC présent. Référence complète : 125 images et 5.000 secondes.
+- Comparaison de toutes les images décodées : premier segment identique pixel à pixel à sa plage de référence ; deuxième segment écart moyen RGB 0.000237/255, maximum 2/255 (compression H.264). Aucun changement de couleur à l’intérieur de chaque segment.
+- **ProRes 422 HQ : test via le panneau principal**, choix de preset/destination puis bouton Export All Clips ; 50 et 75 images, 2.000 et 3.000 secondes, PCM présent.
+- Presets Adobe locaux : `shareforreview-h264.epr` et `fio-prores-422hq.epr` (ce dernier copié localement pour le sélecteur ; aucun preset Adobe redistribué).
+- 14 tests Node réussis ; contrôles syntaxiques réussis. Le test hôte utilise le même core.js que la version 0.2.0 ; la 0.2.1 actualise le statut et la documentation.
 
-La recette hôte reste bloquée au chargement du plugin : UXP Developer Tool n’est pas disponible dans l’environnement vérifié. Aucun réglage de développement de Premiere n’a été modifié et aucun export n’a été lancé sur le projet de travail ouvert. Ne pas convertir cet état en « exports validés » à partir des seuls tests Node ou du booléen retourné par Adobe.
+**Portée limitée :** pas de validation des effets couleur de séquence de Premiere 27, des calques d’effets, des titres, transitions, imbrications, plugins tiers, autres cadences ni des longs lots. La présence du son a été vérifiée, mais pas une écoute critique ni les effets de piste. Un export complet via l’API a servi de référence ; ce n’est pas une comparaison avec une référence réglée manuellement dans l’interface Exporter. Les médias synthétiques sont des aplats et ne prouvent pas l’absence de doublons d’image sur du mouvement.
+
+Voir [résultats mesurés et empreintes des fichiers](host-results.json). Les fichiers vidéo de test restent locaux ; aucune donnée du montage de l’utilisateur n’a été publiée.
 
 ## Recette à effectuer après installation d’UXP Developer Tool
 
@@ -38,11 +45,11 @@ Utiliser un projet de test séparé, médias en ligne. Consigner version exacte 
 
 Pour chaque média, vérifier nombre d’images et durée dans un outil de contrôle (par exemple ffprobe), puis comparer les images et le son à un export manuel. Pour une comparaison technique de pixels, préférer un preset sans perte ; les codecs avec pertes peuvent introduire des écarts même pour un rendu équivalent. Vérifier aussi l’espace couleur et les métadonnées.
 
-Compléter le résultat ci-dessous uniquement après exécution :
+État après la recette partielle du 21 novembre 2026 :
 
-- Testeur / date : **non exécuté**
-- Version Premiere / macOS / UXP : **non renseignée pour la recette**
-- Presets / nombre de fichiers : **aucun**
-- Fidélité des effets : **non validée**
-- Respect des bornes et durée : **non validé**
-- Conclusion hôte : **en attente**
+- Testeur / date : **test assisté exécuté le 21 novembre 2026**
+- Version Premiere : **27.0.0** ; macOS et UXP : voir host-results.json
+- Presets / nombre de fichiers : **H.264 : 2 segments + 1 référence ; ProRes 422 HQ : 2 segments**
+- Fidélité des effets : **Invert de clip confirmé ; autres effets non validés**
+- Respect des bornes et durée : **confirmé sur ces deux plages à 25 i/s**
+- Conclusion hôte : **export de plans simples fonctionnel ; recette complexe en attente**

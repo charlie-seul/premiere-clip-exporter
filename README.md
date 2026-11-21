@@ -2,7 +2,7 @@
 
 Extension UXP gratuite (MIT) pour **Premiere Pro 27 sur macOS** : détecter les clips d’une piste ou les clips vidéo sélectionnés, puis demander un export de séquence par plage.
 
-**Version 0.2.0 expérimentale. Code et tests automatisés disponibles ; aucun export réel de ce plugin n’a encore été validé dans Premiere. Ce dépôt ne constitue pas une version de production.**
+**Version 0.2.1 expérimentale. Exports réels H.264 et ProRes 422 HQ vérifiés dans Premiere Pro 27.0.0 sur deux plans synthétiques à 25 i/s, avec un effet de clip Invert. Les effets couleur de séquence, calques d’effets et montages complexes restent à valider.**
 
 ## Fonctionnement
 
@@ -21,7 +21,7 @@ Un sous-dossier unique `ClipExports-…` contient les sorties `0001_nom.ext` et 
 
 Le plugin demande le rendu de la **composition entière de la séquence**, et non celui du fichier source isolé : les pistes vidéo superposées, titres, transitions, calques d’effets et le mixage audio restent donc dans les copies. Une sélection de clips définit les plages, pas un solo des clips. Les coupes internes d’une séquence imbriquée ou multicam ne sont pas analysées.
 
-La conservation effective des effets de clip, des nouveaux effets couleur de séquence de Premiere 27, des médias imbriqués, des plugins tiers et de la gestion couleur **doit être vérifiée dans Premiere**. Cloner la séquence vise à les conserver, mais la documentation de clonage ne garantit pas cette fidélité. La sémantique exacte de fin de plage (dernière image / borne exclusive) et le respect des In/Out avec `exportFull=false` font également partie du test d’acceptation. Le preset détermine codec, résolution, cadence, audio, espace couleur et éventuels réglages de sous-titres.
+Un effet de clip Invert a été vérifié dans les exports réels. La conservation des autres effets de clip, des nouveaux effets couleur de séquence de Premiere 27, des médias imbriqués, des plugins tiers et de la gestion couleur **reste à vérifier dans Premiere**. Cloner la séquence vise à les conserver, mais la documentation de clonage ne garantit pas cette fidélité. Les plages `0–2 s` et `2–5 s` avec `exportFull=false` ont produit exactement 50 et 75 images à 25 i/s. Les autres cadences restent à tester. Le preset détermine codec, résolution, cadence, audio, espace couleur et éventuels réglages de sous-titres.
 
 Le panneau soumet les appels `IMMEDIATELY` successivement. La documentation ne spécifie pas suffisamment si la résolution de la promesse correspond à la fin de l’encodage ; il ne prétend donc pas afficher une progression d’encodage ni une validation de fichiers. Les copies indépendantes restent stables si Premiere continue en arrière-plan. Ne pas modifier les médias, les séquences imbriquées ou les réglages du projet pendant les rendus.
 
@@ -31,9 +31,9 @@ Aucune compilation ni dépendance npm n’est nécessaire pour charger le pannea
 
 1. Télécharger le ZIP de ce dépôt et le décompresser dans un emplacement permanent.
 2. Installer **UXP Developer Tool** depuis l’onglet Applications de Creative Cloud Desktop (compte Adobe requis).
-3. Dans Premiere Pro 27, ouvrir **Préférences/Réglages > Modules externes (Plugins)** et activer **Developer Mode**, puis suivre l’éventuelle demande de redémarrage de Premiere.
+3. Dans Premiere Pro 27, ouvrir **Premiere > Réglages > Plug-ins** et activer **Developer Mode**, puis suivre l’éventuelle demande de redémarrage de Premiere.
 4. Lancer UXP Developer Tool ; **Add Plugin** et sélectionner le `manifest.json` de ce dossier.
-5. Cliquer sur **Load** pour Premiere Pro 27. Le panneau est accessible par **Fenêtre > UXP Plugins > Clip Exporter** (libellés variables selon la langue/version).
+5. Cliquer sur **Load** pour Premiere Pro 27. Le panneau est accessible par **Fenêtre > Plug-ins UXP > Premiere Clip Exporter** (libellés variables selon la langue/version).
 6. Accorder l’accès uniquement aux fichiers/dossiers choisis via les sélecteurs.
 
 Pour retirer le panneau : **Unload** dans UXP Developer Tool. Les copies créées dans le projet restent présentes ; les retirer manuellement seulement une fois les rendus terminés et vérifiés.

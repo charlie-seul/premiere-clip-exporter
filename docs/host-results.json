@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-21",
+  "premiere": "27.0.0",
+  "macOS": "27.2.1",
+  "scope": "Synthetic 320x180 25fps red/blue clips; first clip AE.ADBE Invert; no user media",
+  "files": [
+    {
+      "name": "0001_01-red.mov.mp4",
+      "sha256": "69fb86cb4e6a5652f4cb198dea36a92a5764269340805077a89005e7f1977e30",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "profile": "Main",
+          "width": 320,
+          "height": 180,
+          "r_frame_rate": "25/1",
+          "duration": "2.000000",
+          "nb_read_frames": "50"
+        },
+        {
+          "codec_name": "aac",
+          "profile": "LC",
+          "r_frame_rate": "0/0",
+          "duration": "2.000000",
+          "nb_read_frames": "94"
+        }
+      ]
+    },
+    {
+      "name": "0002_02-blue.mov.mp4",
+      "sha256": "17a6b3054193b51bdd2f5527297a26705254315f826db5be693843e220e7b094",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "profile": "Main",
+          "width": 320,
+          "height": 180,
+          "r_frame_rate": "25/1",
+          "duration": "3.000000",
+          "nb_read_frames": "75"
+        },
+        {
+          "codec_name": "aac",
+          "profile": "LC",
+          "r_frame_rate": "0/0",
+          "duration": "3.000000",
+          "nb_read_frames": "141"
+        }
+      ]
+    },
+    {
+      "name": "reference.mp4",
+      "sha256": "87726497e5212a17f10203c204b48c0fae522f5aba50223708de99672d6ad43f",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "profile": "Main",
+          "width": 320,
+          "height": 180,
+          "r_frame_rate": "25/1",
+          "duration": "5.000000",
+          "nb_read_frames": "125"
+        },
+        {
+          "codec_name": "aac",
+          "profile": "LC",
+          "r_frame_rate": "0/0",
+          "duration": "5.000000",
+          "nb_read_frames": "235"
+        }
+      ]
+    },
+    {
+      "name": "0001_01-red.mov.mov",
+      "sha256": "1fe59e06e20c5f85a4bed2db0197d419b793e0e80f34119252332b48fe6aa833",
+      "streams": [
+        {
+          "codec_name": "prores",
+          "profile": "HQ",
+          "width": 320,
+          "height": 180,
+          "r_frame_rate": "25/1",
+          "duration": "2.000000",
+          "nb_read_frames": "50"
+        },
+        {
+          "codec_name": "pcm_s16le",
+          "r_frame_rate": "0/0",
+          "duration": "2.000000",
+          "nb_read_frames": "94"
+        },
+        {
+          "r_frame_rate": "0/0",
+          "duration": "2.000000"
+        }
+      ]
+    },
+    {
+      "name": "0002_02-blue.mov.mov",
+      "sha256": "ac944c39c71ff3a3b885124667b067b3483531b3085cc5c9108f0c2a5b4d878e",
+      "streams": [
+        {
+          "codec_name": "prores",
+          "profile": "HQ",
+          "width": 320,
+          "height": 180,
+          "r_frame_rate": "25/1",
+          "duration": "3.000000",
+          "nb_read_frames": "75"
+        },
+        {
+          "codec_name": "pcm_s16le",
+          "r_frame_rate": "0/0",
+          "duration": "3.000000",
+          "nb_read_frames": "141"
+        },
+        {
+          "r_frame_rate": "0/0",
+          "duration": "3.000000"
+        }
+      ]
+    }
+  ],
+  "uxpDeveloperTools": "2.4.0",
+  "uxpRuntime": "not recorded"
+}

@@ -64,7 +64,7 @@ action('export', async () => {
     const runName = 'ClipExports-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     const folder = await destination.createFolder(runName);
     journal = await folder.createFile('export-report.json', {overwrite: false});
-    report = {version: '0.2.0', createdAt: new Date().toISOString(),
+    report = {version: '0.2.1', createdAt: new Date().toISOString(),
       sourceName: source.name, sourceGuid: source.guid.toString(), preset: preset.nativePath,
       validation: 'Host exports NOT independently verified', jobs: []};
     await core.exportBatch({ppro, project, source, segments, presetPath: preset.nativePath, folder,
