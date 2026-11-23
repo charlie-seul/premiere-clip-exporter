@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><style>
+<html lang="en"><head><meta charset="utf-8"><style>
 body{background:#242424;color:#eee;font:13px system-ui;padding:16px}h1{font-size:21px}p{line-height:1.5;color:#ccc}button,select{margin:5px 0;padding:9px;width:100%}label{display:block;margin-top:10px}pre{white-space:pre-wrap;font-size:12px;background:#191919;padding:10px;max-height:200px;overflow:auto}.note{color:#f4cf87}#stop{background:#583636}button:disabled{opacity:.45}
 </style></head><body>
 <h1>Premiere Clip Exporter</h1>
-<p class="note">Version de développement · plans simples testés à 25 i/s. Effets de séquence à vérifier.</p>
-<p>Un fichier par plage de clip, avec toutes les pistes visibles et le mixage audio de la séquence. Les calques d’effets ne définissent pas de plans.</p>
-<label>Plans à exporter<select id="mode"><option value="track">Tous les plans d’une piste</option><option value="selected">Clips vidéo sélectionnés (toutes pistes)</option></select></label>
-<label>Piste de découpage<select id="track"><option value="0">V1</option></select></label>
-<button id="inspect">Analyser la séquence active</button>
-<button id="preset">Choisir le format : preset Adobe .epr</button><p id="presetName">Aucun preset — H.264 ou ProRes via un preset exporté depuis Premiere.</p>
-<button id="folder">Choisir le dossier de destination</button><p id="folderName">Aucun dossier</p>
-<pre id="preview">Analyse requise.</pre>
-<p>Chaque export crée une copie dans le projet. Le nettoyage automatique ne la supprime que si le fichier MP4/MOV est finalisé et stable. Sinon elle reste disponible. Garder le panneau ouvert pendant le lot. Nettoyage limité aux MP4/MOV de 256 Mo maximum ; les autres copies restent dans le projet.</p>
-<label><input id="cleanup" type="checkbox" checked> Supprimer automatiquement les copies après finalisation du fichier</label>
+<p class="note">Development version · simple clips tested at 25 fps. Sequence effects still need testing.</p>
+<p>Export one file per clip range with all visible tracks and the sequence audio mix. Adjustment layers do not define clip ranges.</p>
+<label>Clips to export<select id="mode"><option value="track">All clips on one track</option><option value="selected">Selected video clips (all tracks)</option></select></label>
+<label>Video track<select id="track"><option value="0">V1</option></select></label>
+<button id="inspect">Analyze Active Sequence</button>
+<button id="preset">Choose Adobe Preset (.epr)</button><p id="presetName">Choose an H.264 or ProRes preset exported from Premiere.</p>
+<button id="folder">Choose Output Folder</button><p id="folderName">No folder selected</p>
+<pre id="preview">Analyze the active sequence to preview clip ranges.</pre>
+<p>Each export creates a sequence copy. Automatic cleanup removes the copy only after confirming a finalized, stable MP4 or MOV up to 256 MB. Keep this panel open during the batch.</p>
+<label><input id="cleanup" type="checkbox" checked> Automatically remove sequence copies after file finalization</label>
 <button id="export" disabled>Export All Clips</button>
-<button id="stop" disabled>Arrêter après la demande en cours</button>
-<pre id="status" role="status">Prêt. Tester d’abord sur une copie du projet.</pre>
+<button id="stop" disabled>Stop After Current Request</button>
+<pre id="status" role="status">Ready. Test on a copy of your project first.</pre>
 <script src="main.js"></script>
 </body></html>
