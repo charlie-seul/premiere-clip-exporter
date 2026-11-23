@@ -2,7 +2,7 @@
 // Decimal strings preserve Premiere ticks even beyond Number.MAX_SAFE_INTEGER.
 function ticks(value) {
   const s = String(value);
-  if (!/^\d+$/.test(s)) throw new Error('Temps de séquence invalide : ' + s);
+  if (!/^\d+$/.test(s)) throw new Error('Invalid sequence time: ' + s);
   return s.replace(/^0+(?=\d)/, '');
 }
 function compare(a, b) {
@@ -14,13 +14,13 @@ function safeName(name) {
     .replace(/^[. ]+|[. ]+$/g, '').slice(0, 70) || 'clip';
 }
 function planSegments(clips, {mode = 'track', track = 0} = {}) {
-  if (!['track', 'selected'].includes(mode)) throw new Error('Mode inconnu.');
+  if (!['track', 'selected'].includes(mode)) throw new Error('Unknown export mode.');
   const filtered = clips.filter(c => !c.disabled && !c.adjustment && !c.muted &&
     (mode === 'selected' ? c.selected : c.track === track));
   const seen = new Set();
   return filtered.map(c => ({...c, start: ticks(c.start), end: ticks(c.end)}))
     .filter(c => {
-      if (compare(c.start, c.end) >= 0) throw new Error('Plage vide ou inversée.');
+      if (compare(c.start, c.end) >= 0) throw new Error('Empty or reversed range.');
       const key = c.start + ':' + c.end;
       if (seen.has(key)) return false;
       seen.add(key); return true;
@@ -49,13 +49,13 @@ function transaction(project, label, actions) {
       for (const action of actions()) compound.addAction(action);
     }, label);
   });
-  if (!ok) throw new Error('Transaction Premiere refusée : ' + label);
+  if (!ok) throw new Error('Premiere rejected the transaction: ' + label);
 }
 async function cloneSequence(project, source) {
   const before = new Set((await project.getSequences()).map(s => s.guid.toString()));
-  transaction(project, 'Clip Exporter : copie complète', () => [source.createCloneAction()]);
+  transaction(project, 'Clip Exporter: clone sequence', () => [source.createCloneAction()]);
   const added = (await project.getSequences()).filter(s => !before.has(s.guid.toString()));
-  if (added.length !== 1) throw new Error('Impossible d’identifier une copie unique. Lot arrêté ; inspecter les séquences du projet.');
+  if (added.length !== 1) throw new Error('Could not identify a single sequence copy. Check the project sequences.');
   return added[0];
 }
 async function removeCompletedCopy(project, source, job) {
@@ -67,9 +67,9 @@ async function removeCompletedCopy(project, source, job) {
   return await project.deleteSequence(matches[0]) === true ? 'removed' : 'kept-delete-refused';
 }
 async function exportBatch({ppro, project, source, segments, presetPath, folder, cancelled, onUpdate, report, autoCleanup = false, verifyOutput}) {
-  if (!segments.length) throw new Error('Aucun plan à exporter.');
+  if (!segments.length) throw new Error('No clips to export.');
   const extension = String(await ppro.EncoderManager.getExportFileExtension(source, presetPath)).replace(/^\./, '');
-  if (!/^[a-z0-9]{1,10}$/i.test(extension)) throw new Error('Extension du preset invalide.');
+  if (!/^[a-z0-9]{1,10}$/i.test(extension)) throw new Error('Invalid preset file extension.');
   const encoder = ppro.EncoderManager.getManager();
   for (const segment of segments) {
     if (cancelled()) { report.cancelled = true; break; }
@@ -83,19 +83,19 @@ async function exportBatch({ppro, project, source, segments, presetPath, folder,
       job.cloneGuid = clone.guid.toString();
       job.cloneName = 'PCE_' + folder.name + '_' + segment.stem;
       const projectItem = await clone.getProjectItem();
-      transaction(project, 'Clip Exporter : plage ' + segment.stem, () => [
+      transaction(project, 'Clip Exporter: set range for ' + segment.stem, () => [
         projectItem.createSetNameAction(job.cloneName),
         clone.createSetInPointAction(ppro.TickTime.createWithTicks(segment.start)),
         clone.createSetOutPointAction(ppro.TickTime.createWithTicks(segment.end))
       ]);
       if (compare((await clone.getInPoint()).ticks, segment.start) !== 0 ||
           compare((await clone.getOutPoint()).ticks, segment.end) !== 0) {
-        throw new Error('Premiere n’a pas conservé la plage demandée.');
+        throw new Error('Premiere did not retain the requested range.');
       }
       job.state = 'submitting'; await onUpdate(report);
       const accepted = await encoder.exportSequence(clone, ppro.Constants.ExportType.IMMEDIATELY,
         job.output, presetPath, false);
-      if (accepted !== true) throw new Error('Premiere a refusé ou annulé l’export.');
+      if (accepted !== true) throw new Error('Premiere rejected or canceled the export.');
       job.state = 'api-accepted-unverified';
       if (autoCleanup) {
         job.cleanup = 'kept';
