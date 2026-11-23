@@ -78,19 +78,19 @@ test('each export has an independent full clone, explicit false range flag and o
 });
 test('API rejection halts subsequent exports and records failure',async()=>{
   const h=host({accept:false}), report={jobs:[]};
-  await assert.rejects(()=>run(h,{report}),/refusé/);
+  await assert.rejects(()=>run(h,{report}),/rejected or canceled/);
   assert.equal(h.calls.length,1); assert.equal(report.jobs[0].state,'failed');
 });
 test('ambiguous clone identification fails closed',async()=>{
-  const h=host({cloneCount:2}); await assert.rejects(()=>run(h),/copie unique/);
+  const h=host({cloneCount:2}); await assert.rejects(()=>run(h),/single sequence copy/);
   assert.equal(h.calls.length,0);
 });
 test('transaction refusal never submits a render',async()=>{
-  const h=host({rejectTransaction:true}); await assert.rejects(()=>run(h),/Transaction/);
+  const h=host({rejectTransaction:true}); await assert.rejects(()=>run(h),/rejected the transaction/);
   assert.equal(h.calls.length,0);
 });
 test('range readback mismatch never submits a render',async()=>{
-  const h=host({badRange:true}); await assert.rejects(()=>run(h),/plage demandée/);
+  const h=host({badRange:true}); await assert.rejects(()=>run(h),/requested range/);
   assert.equal(h.calls.length,0);
 });
 test('stop prevents next job while keeping already submitted clone intact',async()=>{
@@ -100,8 +100,8 @@ test('stop prevents next job while keeping already submitted clone intact',async
 });
 test('invalid preset extension and empty batches fail before cloning',async()=>{
   const h=host();h.ppro.EncoderManager.getExportFileExtension=async()=> '../mov';
-  await assert.rejects(()=>run(h),/Extension/);assert.equal(h.clones.length,0);
-  await assert.rejects(()=>run(host(),{segments:[]}),/Aucun plan/);
+  await assert.rejects(()=>run(h),/Invalid preset file extension/);assert.equal(h.clones.length,0);
+  await assert.rejects(()=>run(host(),{segments:[]}),/No clips to export/);
 });
 
 function cleanupHost() {
