@@ -1,6 +1,54 @@
-# État de validation et recette Premiere
+# Premiere Pro validation results and test plan
 
-## Vérifications effectuées
+## Host tests completed
+
+- Premiere Pro **27.0.0** loaded the main manifest via UXP Developer Tool and analyzed two video clips.
+- The test project used two synthetic 320 × 180 ProRes clips at 25 fps. They lasted 2 and 3 seconds and carried 440 Hz and 880 Hz sine tones. The first clip used `AE.ADBE Invert`.
+- **H.264** exports contained 50 and 75 frames, lasted 2.000 and 3.000 seconds, and included AAC audio. The full-sequence API reference contained 125 frames and lasted 5.000 seconds.
+- The first segment matched its reference frames pixel for pixel. The second had a mean RGB difference of 0.000237/255 and a maximum of 2/255. Neither segment showed a color change within the shot.
+- **ProRes 422 HQ** exports submitted through the main panel contained 50 and 75 frames, lasted 2.000 and 3.000 seconds, and included PCM audio.
+- The local Adobe presets were `shareforreview-h264.epr` and `fio-prores-422hq.epr`. Measured results, environment details, and file hashes are in [host-results.json](host-results.json).
+
+These tests established basic export at 25 fps and preservation of the Invert clip effect. Sequence color, adjustment layers, titles, transitions, nested sequences, third-party plug-ins, other frame rates, and long batches still need testing. Audio presence was checked. Audio fidelity and track effects need listening tests. The reference was rendered through the API. Flat-color test media cannot reveal repeated motion frames.
+
+## Host test plan
+
+Use a separate project with online media. Record the exact versions of Premiere, macOS, and UXP, plus the presets used.
+
+| Case | Setup | Expected result |
+| --- | --- | --- |
+| Loading | Add `manifest.json` and click **Load** | The panel opens and can read the active sequence |
+| Simple cuts | Put 50- and 75-frame clips on V1 at 25 fps | Two files with the exact expected frame counts and boundary frames |
+| Cut boundaries | Put a distinctive frame on each side of a cut | Each export contains only the frames in its range |
+| Clip grading | Apply a noticeable Lumetri effect | Matches a manual export of the same range and preset |
+| Adjustment layer | Place one above two clips | Both files include the effect. The layer creates no separate range |
+| Premiere 27 sequence color | Apply a noticeable sequence-level correction | Cloned sequence and export match the manual reference |
+| Compositing | Put a title and overlay on V2 above V1 clips | Export includes the visible composite |
+| Audio | Combine clip audio, continuous music, and a track effect | Mix and sync match the manual reference |
+| Transition | Place a dissolve across a cut | Both ranges match their manual renders |
+| Selection | Select clips on multiple tracks with identical and overlapping ranges | Identical ranges merge. Overlapping ranges stay separate |
+| Gaps and disabled items | Add a gap, disabled clip, and muted video track | These items create no export ranges |
+| Nesting and speed | Include a nested clip, slow motion, and reversed playback | Duration and appearance match the reference. Internal cuts stay within the nested clip |
+| Frame rates | Test 23.976, 25, and 29.97 fps | Exact ticks and frame counts, with no drift |
+| Presets | Use H.264 and ProRes 422 presets | File extension and media properties match each preset |
+| Source In/Out | Set custom points on the source before exporting | Source points are preserved. Copies use their requested ranges |
+| Stop and rejection | Stop a batch and separately try an invalid preset and rejected export | No new requests after stopping or failure. The log records failures and source media is preserved |
+| Destination | Use a folder with spaces and Unicode. Run twice | Separate batch directories preserve earlier exports |
+| Persistence | Wait for rendering and close the panel | Outputs remain playable. Any retained copies can be identified by name and GUID |
+
+Use a tool such as ffprobe to verify frame count and duration. Compare image and audio with a manual reference using the same preset. Use lossless encoding for pixel comparisons when possible, and inspect color space and metadata.
+
+## Automatic cleanup in 0.3.0
+
+On November 21, 2026, Premiere Pro 27.0.0 exported two H.264 segments from a separate synthetic project. Both files passed stability and finalization checks. The two matching copies were deleted by name and GUID with `Project.deleteSequence()`. The source `PCE_fixture` remained with its In/Out points unset. See [cleanup-host-results.json](cleanup-host-results.json).
+
+The host did not deliver `EXPORT_MEDIA_COMPLETE` for these direct exports, even with a global listener. UXP File/Folder APIs were used because `require('fs').lstat()` returned “Unimplemented method”. Container reading is limited to 256 MB. Node tests cover export failure, cancellation, renamed copies, GUID mismatches, incomplete output, and unstable file size. Automatic MOV cleanup, longer batches, and other frame rates still need host testing.
+
+---
+
+## Français
+
+### Vérifications effectuées
 
 - Prototype téléchargé inspecté : interface d’inspection uniquement, aucune détection ni fonction d’export.
 - API recoupées avec les références et exemples officiels Adobe, voir API-AUDIT.md.
@@ -18,7 +66,7 @@
 
 Voir [résultats mesurés et empreintes des fichiers](host-results.json). Les fichiers vidéo de test restent locaux ; aucune donnée du montage de l’utilisateur n’a été publiée.
 
-## Recette à effectuer après installation d’UXP Developer Tool
+### Recette à effectuer après installation d’UXP Developer Tool
 
 Utiliser un projet de test séparé, médias en ligne. Consigner version exacte de Premiere, macOS, UXP et presets utilisés. Ne pas qualifier cette version de stable avant réussite de tous les cas pertinents.
 
@@ -54,7 +102,7 @@ Pour chaque média, vérifier nombre d’images et durée dans un outil de contr
 - Respect des bornes et durée : **confirmé sur ces deux plages à 25 i/s**
 - Conclusion hôte : **export de plans simples fonctionnel ; recette complexe en attente**
 
-## Nettoyage automatique — recette complémentaire 0.3.0
+### Nettoyage automatique — recette complémentaire 0.3.0
 
 Test réel exécuté le 21 novembre 2026, sur un projet synthétique séparé dans Premiere Pro 27.0.0 :
 
